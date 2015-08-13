@@ -3,8 +3,7 @@
   "version": "0.0.1",
   "description": "Text Wrapper Kata",
   "main": "index.js",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "babel": "^5.8.20",
     "babel-eslint": "^4.0.5",
@@ -12,17 +11,18 @@
     "browserify": "^11.0.1",
     "eslint": "^1.0.0",
     "eslint-plugin-react": "^3.2.0",
-    "mocha": "^2.2.5",
-    "should": "^7.0.2"
+    "gulp": "^3.9.0",
+    "gulp-jasmine-browser": "^0.1.4",
+    "gulp-sourcemaps": "^1.5.2",
+    "gulp-util": "^3.0.6",
+    "gulp-watch": "^4.3.4",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0",
+    "watchify": "^3.3.1"
   },
   "scripts": {
-    "clean": "(IF exist build (rmdir /s /q build)) && mkdir build",
     "lint": "eslint source && eslint spec",
-    "test": "npm run lint && mocha --compilers js:babel/register spec/**/*Spec.js",
-    "build": "npm run clean && browserify source/app-client.js -t babelify > build/app-client.js",
-    "check": "npm run lint && npm run build && npm test",
-    "start": "npm run check && babel-node source/server.js",
-    "validate": "npm run check && npm outdated --depth 0"
+    "validate": "npm outdated --depth 0"
   },
   "repository": {
     "type": "git",
