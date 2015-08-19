@@ -4,4 +4,5 @@ const append = (input) => {
   input + test;
 };
 
-console.log(append(22));
+append(22);
+
