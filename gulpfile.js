@@ -5,25 +5,47 @@ var eslint = require('gulp-eslint');
 var forEach = require('gulp-foreach');
 var jasmineBrowser = require('gulp-jasmine-browser');
 var rename = require('gulp-rename');
+var sourcemaps = require('gulp-sourcemaps');
+var uglify = require('gulp-uglify');
 var gutil = require('gulp-util');
-var sourcemaps = require('gulp-sourcemaps')
 var watch = require('gulp-watch');
 var extend = require('lodash/object/extend');
 var path = require('path');
-var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
+var source = require('vinyl-source-stream');
 var watchify = require('watchify');
 
-var srcFiles = ['src/**/*.js', 'spec/**/*.js'];
-var rootSrc = ['./src/index.js', './spec/tests.js'];
+var outDir = './dist';
+var srcFilesAll = ['src/**/*.js', 'spec/**/*.js'];
+
+var rootSrcFile = './src/index.js';
+var rootTestFile = './spec/tests.js';
+
+var rootTestFileName = path.basename(rootTestFile);
+var rootTestOutFile = path.join(outDir, rootTestFileName);
+
+var rootSrcFiles = [rootSrcFile, rootTestFile];
+
+var isDebug = !(gutil.env.type === 'ship');
+var shipSuffix = '.min';
+
+/**
+ * Extracts the file name from the given path and appends given suffix.
+ * @param  {string} filePath
+ * @param  {string} suffix to apply to file name.
+ * @return {string}      new path with suffix appended to file name.
+ */
+function appendSuffixToFileBase(filePath, suffix){
+  var extName = path.extname(filePath);
+  var fileName = path.basename(filePath, extName);
+
+  return path.join(path.dirname(filePath), fileName + suffix + extName);
+}
 
 function getBundler(file, options) {
-  options = options || {};
-
-  //Can extend options with defaults if needed
-  //options = extend(options || {}, {
-  // default options go here
-  //});
+  options = extend(options || {}, {
+    debug: isDebug
+  });
 
   var bundler = browserify(file.path, options);
   bundler.transform(babel);
@@ -39,32 +61,30 @@ function bundle(file, bundler) {
     .bundle()
     .pipe(source(fileName))
     .pipe(buffer())
-    .pipe(sourcemaps.init({ loadMaps: true }))
-    .pipe(sourcemaps.write('./'))
-    .pipe(gulp.dest('./dist'));
+    .pipe(isDebug ? sourcemaps.init({ loadMaps: true }) : gutil.noop())
+    .pipe(isDebug ? sourcemaps.write('./') : gutil.noop())
+    .pipe(!isDebug ? uglify() : gutil.noop())
+    .pipe(!isDebug ? rename({ suffix: shipSuffix }) : gutil.noop())
+    .pipe(gulp.dest(outDir));
 
 };
 
 gulp.task('bundle', function() {
-  return gulp.src(rootSrc)
+  return gulp.src(rootSrcFiles)
   .pipe(forEach(function(stream, file) {
-    var bundler = getBundler(file, {
-      debug: true
-    });
+    var bundler = getBundler(file);
 
     return bundle(file, bundler);
   }));
 });
 
 gulp.task('autoBundle', function() {
-  return gulp.src(rootSrc)
+  return gulp.src(rootSrcFiles)
   .pipe(forEach(function(stream, file) {
-    var bundler = watchify(getBundler(file, {
-      debug: true
-    }));
+    var bundler = watchify(getBundler(file));
 
     function rebundle() {
-      gutil.log('Updated', gutil.colors.magenta(file.path));
+      gutil.log('Updated', file.path);
 
       return bundle(file, bundler);
     }
@@ -77,7 +97,10 @@ gulp.task('autoBundle', function() {
 });
 
 gulp.task('jasmine', function() {
-  var filesForTest = ['dist/index.js', 'dist/tests.js'];
+  var testFileRoot = isDebug ?
+                      rootTestOutFile :
+                      appendSuffixToFileBase(rootTestOutFile, shipSuffix);
+  var filesForTest = [testFileRoot];
   return gulp.src(filesForTest)
     .pipe(watch(filesForTest))
     .pipe(jasmineBrowser.specRunner())
@@ -85,10 +108,10 @@ gulp.task('jasmine', function() {
 });
 
 gulp.task('autoLint', function() {
-  return gulp.src(srcFiles)
-  .pipe(watch(srcFiles))
+  return gulp.src(srcFilesAll)
+  .pipe(watch(srcFilesAll))
   .pipe(forEach(function(stream, file) {
-    gutil.log('Linting', gutil.colors.magenta(file.path));
+    gutil.log('Linting', file.path);
     return stream;
   }))
   .pipe(eslint())
