@@ -64,8 +64,11 @@ function bundle(file, bundler) {
   var fileName = path.basename(file.path);
 
   return bundler
-    .on("error", gutil.log.bind(gutil, "Browserify Error"))
     .bundle()
+    .on('error', function(err) {
+      gutil.log(err.message);
+      this.emit('end');
+    })
     .pipe(source(fileName))
     .pipe(buffer())
     .pipe(isDebug ? sourcemaps.init({ loadMaps: true }) : gutil.noop())
@@ -135,8 +138,7 @@ gulp.task('autoLint', function() {
     return stream;
   }))
   .pipe(eslint())
-  .pipe(eslint.format())
-  .pipe(eslint.failOnError());
+  .pipe(eslint.formatEach('stylish'));
 });
 
 gulp.task('watch', ['autoBundle', 'autoLint', 'jasmineTestServer']);
