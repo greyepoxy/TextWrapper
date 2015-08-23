@@ -1,9 +1,10 @@
 var babel = require('babelify');
+var jasmineTestsServer = require('browser-sync').create('JasmineTests');
 var browserify = require('browserify');
 var gulp = require('gulp');
 var eslint = require('gulp-eslint');
 var forEach = require('gulp-foreach');
-var jasmineBrowser = require('gulp-jasmine-browser');
+var htmlReplace = require('gulp-html-replace');
 var rename = require('gulp-rename');
 var sourcemaps = require('gulp-sourcemaps');
 var uglify = require('gulp-uglify');
@@ -29,6 +30,12 @@ var rootSrcFiles = [rootSrcFile, rootTestFile];
 var isDebug = !(gutil.env.type === 'ship');
 var shipSuffix = '.min';
 
+function getOutFileName(filePath, isDebug) {
+  return isDebug ?
+          filePath :
+          appendSuffixToFileBase(filePath, shipSuffix);
+};
+
 /**
  * Extracts the file name from the given path and appends given suffix.
  * @param  {string} filePath
@@ -40,7 +47,7 @@ function appendSuffixToFileBase(filePath, suffix){
   var fileName = path.basename(filePath, extName);
 
   return path.join(path.dirname(filePath), fileName + suffix + extName);
-}
+};
 
 function getBundler(file, options) {
   options = extend(options || {}, {
@@ -97,14 +104,27 @@ gulp.task('autoBundle', function() {
 });
 
 gulp.task('jasmine', function() {
-  var testFileRoot = isDebug ?
-                      rootTestOutFile :
-                      appendSuffixToFileBase(rootTestOutFile, shipSuffix);
-  var filesForTest = [testFileRoot];
-  return gulp.src(filesForTest)
-    .pipe(watch(filesForTest))
-    .pipe(jasmineBrowser.specRunner())
-    .pipe(jasmineBrowser.server({port: 8888}));
+  var filesForTest = [getOutFileName(rootTestFileName, isDebug)];
+
+  gulp.src('./spec/SpecRunner.html')
+    .pipe(htmlReplace({ jstests: filesForTest }))
+    .pipe(gulp.dest(outDir));
+
+  return gulp.src(['lib/**/*'])
+    .pipe(gulp.dest(path.join(outDir, 'lib')));
+});
+
+gulp.task('jasmineTestServer', ['jasmine'], function() {
+  var filesForTest = [getOutFileName(rootTestOutFile, isDebug)];
+
+  jasmineTestsServer.init({
+    server: {
+      baseDir: outDir,
+      index:'SpecRunner.html'
+    }
+  });
+
+  gulp.watch(filesForTest).on('change', jasmineTestsServer.reload);
 });
 
 gulp.task('autoLint', function() {
@@ -119,6 +139,6 @@ gulp.task('autoLint', function() {
   .pipe(eslint.failOnError());
 });
 
-gulp.task('watch', ['autoBundle', 'jasmine', 'autoLint']);
+gulp.task('watch', ['autoBundle', 'autoLint', 'jasmineTestServer']);
 
 gulp.task('default', ['bundle']);
