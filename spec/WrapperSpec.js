@@ -30,4 +30,10 @@ describe('Wrapper', () => {
     const colNum = 6;
     expect(Wrapper.wrap(textIn, colNum)).toEqual('word\nword');
   });
+
+  it('ShouldSplitAtNextSpaceIfColNumAlignsWithLastCharInWord', () => {
+    const textIn = 'word word';
+    const colNum = 4;
+    expect(Wrapper.wrap(textIn, colNum)).toEqual('word\nword');
+  });
 });
