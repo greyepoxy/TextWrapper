@@ -8,10 +8,18 @@ export function Wrapper() {}
  * @param  {number} colNum maximum column length for a single line of text.
  * @return {string}        text but with line breaks inserted.
  */
-Wrapper.wrap = function wrap(text, colNum) {
-  if (text.length < colNum) {
+Wrapper.wrap = function wrap(text, colNum)
+{
+  if (text.length < colNum)
+  {
     return text;
   }
 
-  return text.slice(0, colNum) + '\n' + text.substr(colNum);
+  let splitLoc = colNum;
+  if (text[colNum - 1] == ' ')
+  {
+    splitLoc--;
+  }
+
+  return text.slice(0, splitLoc) + '\n' + text.substr(colNum);
 };

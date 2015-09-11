@@ -18,4 +18,10 @@ describe('Wrapper', () => {
     const colNum = 2;
     expect(Wrapper.wrap(textIn, colNum)).toEqual('wo\nrd');
   });
+
+  it('ShouldSplitAtWordBoundryIfColNumAlignsWithBoundry', () => {
+    const textIn = 'word word';
+    const colNum = 5;
+    expect(Wrapper.wrap(textIn, colNum)).toEqual('word\nword');
+  });
 });
