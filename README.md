@@ -7,3 +7,5 @@ http://thecleancoder.blogspot.com/2010/10/craftsman-62-dark-path.html
 This is my attempt at this Kata.
 
 If you want to do this Kata as well a good stating point is https://github.com/greyepoxy/TextWrapper/commit/e6f9a25216e644798a23173658b8597bb0ceae5d.
+
+To do this fork this repository and then role back to that change.
