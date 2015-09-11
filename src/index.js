@@ -9,8 +9,9 @@ export function Wrapper() {}
  * @return {string}        text but with line breaks inserted.
  */
 Wrapper.wrap = function wrap(text, colNum) {
-  // To make the linter happy, should be removed when you start
-  colNum;
+  if (text.length < colNum) {
+    return text;
+  }
 
-  return text;
+  return text.slice(0, colNum) + '\n' + text.substr(colNum);
 };

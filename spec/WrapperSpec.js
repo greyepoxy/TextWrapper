@@ -12,4 +12,10 @@ describe('Wrapper', () => {
     const colNum = 10;
     expect(Wrapper.wrap(textIn, colNum)).toEqual(textIn);
   });
+
+  it('ShouldSplitASingleWordAtColNum', () => {
+    const textIn = 'word';
+    const colNum = 2;
+    expect(Wrapper.wrap(textIn, colNum)).toEqual('wo\nrd');
+  });
 });
