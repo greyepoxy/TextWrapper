@@ -113,8 +113,11 @@ gulp.task('jasmine', function() {
     .pipe(htmlReplace({ jstests: filesForTest }))
     .pipe(gulp.dest(outDir));
 
-  return gulp.src(['lib/**/*'])
-    .pipe(gulp.dest(path.join(outDir, 'lib')));
+  var tempPath = 'node_modules/jasmine-core/';
+  return gulp.src([path.join(tempPath, 'images/jasmine_favicon.png'),
+                  path.join(tempPath, 'lib/jasmine-core/boot.js'),
+                  path.join(tempPath, 'lib/jasmine-core/jasmine*')])
+    .pipe(gulp.dest(path.join(outDir, 'lib/jasmine')));
 });
 
 gulp.task('jasmineTestServer', ['jasmine'], function() {
