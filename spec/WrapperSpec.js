@@ -36,4 +36,10 @@ describe('Wrapper', () => {
     const colNum = 4;
     expect(Wrapper.wrap(textIn, colNum)).toEqual('word\nword');
   });
+
+  it('ShouldSplitCorrectlyForManyWords', () => {
+    const textIn = 'word word word';
+    const colNum = 4;
+    expect(Wrapper.wrap(textIn, colNum)).toEqual('word\nword\nword');
+  });
 });

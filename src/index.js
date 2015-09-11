@@ -10,7 +10,7 @@ export function Wrapper() {}
  */
 Wrapper.wrap = function wrap(text, colNum)
 {
-  if (text.length < colNum)
+  if (text.length <= colNum)
   {
     return text;
   }
@@ -29,5 +29,5 @@ Wrapper.wrap = function wrap(text, colNum)
     splitDiff = 1;
   }
 
-  return text.slice(0, splitLoc) + '\n' + text.substr(splitLoc + splitDiff);
+  return text.slice(0, splitLoc) + '\n' + Wrapper.wrap(text.substr(splitLoc + splitDiff), colNum);
 };
