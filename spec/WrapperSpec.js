@@ -24,4 +24,10 @@ describe('Wrapper', () => {
     const colNum = 5;
     expect(Wrapper.wrap(textIn, colNum)).toEqual('word\nword');
   });
+
+  it('ShouldSplitAtWordBoundryBeforeWordIfColNumAlignsWithMiddleOfWord', () => {
+    const textIn = 'word word';
+    const colNum = 6;
+    expect(Wrapper.wrap(textIn, colNum)).toEqual('word\nword');
+  });
 });

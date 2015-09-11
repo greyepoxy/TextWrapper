@@ -15,11 +15,19 @@ Wrapper.wrap = function wrap(text, colNum)
     return text;
   }
 
+  let lastSpaceBeforeCol = text.lastIndexOf(' ', colNum);
   let splitLoc = colNum;
-  if (text[colNum - 1] == ' ')
+  let splitDiff = 0;
+  if (lastSpaceBeforeCol == colNum - 1)
   {
     splitLoc--;
+    splitDiff = 1;
+  }
+  else if (lastSpaceBeforeCol > 0)
+  {
+    splitLoc = lastSpaceBeforeCol;
+    splitDiff = 1;
   }
 
-  return text.slice(0, splitLoc) + '\n' + text.substr(colNum);
+  return text.slice(0, splitLoc) + '\n' + text.substr(splitLoc + splitDiff);
 };
