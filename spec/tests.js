@@ -1,1 +1,1 @@
-require('./TestSpec');
+import './WrapperSpec';
